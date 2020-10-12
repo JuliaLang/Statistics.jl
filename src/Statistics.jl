@@ -363,13 +363,14 @@ singleton dimensions are allowed).
     Use the [`skipmissing`](@ref) function to omit `missing` entries and compute the
     variance of non-missing values.
 """
-var(A::AbstractArray; corrected::Bool=true, mean=nothing, dims=:) = _var(A, corrected, mean, dims)
+var(A::AbstractArray; corrected::Bool=true, dims=:, mean=Statistics.mean(A, dims=dims)) =
+    _var(A, corrected, mean, dims)
 
 _var(A::AbstractArray, corrected::Bool, mean, dims) =
-    varm(A, something(mean, Statistics.mean(A, dims=dims)); corrected=corrected, dims=dims)
+    varm(A, mean; corrected=corrected, dims=dims)
 
 _var(A::AbstractArray, corrected::Bool, mean, ::Colon) =
-    real(varm(A, something(mean, Statistics.mean(A)); corrected=corrected))
+    real(varm(A, mean; corrected=corrected))
 
 varm(iterable, m; corrected::Bool=true) = _var(iterable, corrected, m)
 
@@ -438,7 +439,8 @@ singleton dimensions are allowed).
     Use the [`skipmissing`](@ref) function to omit `missing` entries and compute the
     standard deviation of non-missing values.
 """
-std(A::AbstractArray; corrected::Bool=true, mean=nothing, dims=:) = _std(A, corrected, mean, dims)
+std(A::AbstractArray; corrected::Bool=true, dims=:, mean=Statistics.mean(A, dims=dims)) =
+    _std(A, corrected, mean, dims)
 
 _std(A::AbstractArray, corrected::Bool, mean, dims) =
     sqrt.(var(A; corrected=corrected, mean=mean, dims=dims))
