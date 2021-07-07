@@ -7,12 +7,12 @@ Standard library module for basic statistics functionality.
 """
 module Statistics
 
-using LinearAlgebra, SparseArrays
+using LinearAlgebra, Random, SparseArrays
 
 using Base: has_offset_axes, require_one_based_indexing
 
 export cor, cov, std, stdm, var, varm, mean!, mean,
-    median!, median, middle, quantile!, quantile
+    median!, median, middle, quantile!, quantile, sample
 
 ##### mean #####
 
@@ -1158,5 +1158,18 @@ function centralize_sumabs2!(R::AbstractArray{S}, A::SparseMatrixCSC{Tv,Ti}, mea
     end
     return R
 end
+
+##### Sampling #####
+
+"""
+    sample([rng], a)
+
+Uniformly select a single random element of `a`.
+
+Optionally specify a random number generator `rng` as the first argument
+(defaults to `Random.GLOBAL_RNG`).
+"""
+sample(rng::AbstractRNG, a::AbstractArray) = rand(rng, a)
+sample(a::AbstractArray) = sample(Random.GLOBAL_RNG, a)
 
 end # module

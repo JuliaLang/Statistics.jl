@@ -157,7 +157,7 @@ end
     @test mean(Number[1, 1.5, 2+3im]) === 1.5+1im # mixed-type array
     @test mean(v for v in Number[1, 1.5, 2+3im]) === 1.5+1im
     @test (@inferred mean(Int[])) === 0/0
-    @test (@inferred mean(Float32[])) === 0.f0/0    
+    @test (@inferred mean(Float32[])) === 0.f0/0
     @test (@inferred mean(Float64[])) === 0/0
     @test (@inferred mean(Iterators.filter(x -> true, Int[]))) === 0/0
     @test (@inferred mean(Iterators.filter(x -> true, Float32[]))) === 0.f0/0
@@ -889,4 +889,34 @@ end
         @test isfinite.(cov_sparse) == isfinite.(cov_dense)
         @test isfinite.(cov_sparse) == isfinite.(cov_dense)
     end
+end
+
+@testset "sample" begin
+    @testset "consistency with Base" begin
+        a = rand(100)
+        Random.seed!(1234)
+        res1 = [sample(a) for _ in 1:100]
+        Random.seed!(1234)
+        res2 = [rand(a) for _ in 1:100]
+
+        @test res1 == res2
+
+        mt1 = Random.MersenneTwister(1234)
+        mt2 = Random.MersenneTwister(1234)
+
+        @test [sample(mt1, a) for _ in 1:100] == [rand(mt2, a) for _ in 1:100]
+    end
+
+    @testset "uniformity" begin
+        Random.seed!(1234)
+        counts = zeros(Int, 5)
+        for _ in 1:100_000
+            counts[sample(1:5)] += 1
+        end
+
+        # violation probability is <0.001
+        @test minimum(counts) > 19_500
+        @test maximum(counts) < 20_500
+    end
+
 end
